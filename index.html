@@ -300,6 +300,22 @@
             display: block;
         }
 
+        .error-msg {
+            display: none;
+            color: #fca5a5;
+            background: rgba(239, 68, 68, 0.15);
+            padding: 12px;
+            border-radius: 16px;
+            margin-top: 14px;
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        .error-msg.show {
+            display: block;
+        }
+
         /* --- Адаптив --- */
         @media (max-width: 480px) {
             .card { padding: 30px 20px; }
@@ -353,6 +369,9 @@
         <div class="success-msg" id="successMsg">
             ✅ Отправлено! Она уже знает ❤️
         </div>
+        <div class="error-msg" id="errorMsg">
+            ❌ Ошибка. Попробуй ещё раз.
+        </div>
     </div>
 
     <script>
@@ -397,14 +416,12 @@
             const cardRect = card.getBoundingClientRect();
             const btnRect = this.getBoundingClientRect();
 
-            // Случайное смещение внутри карточки
             const maxX = cardRect.width - btnRect.width - 10;
             const maxY = cardRect.height - btnRect.height - 10;
 
             let newX = Math.random() * maxX;
             let newY = Math.random() * maxY;
 
-            // Чтобы не выбегал за границы
             newX = Math.max(0, Math.min(newX, maxX));
             newY = Math.max(0, Math.min(newY, maxY));
 
@@ -414,49 +431,39 @@
             this.style.transition = 'left 0.2s ease, top 0.2s ease';
         });
 
-        // Если нажали на "НЕТ" — всё равно отправляем "НЕТ"
-        noBtn.addEventListener('click', function() {
-            const date = document.getElementById('dateInput').value;
-            const wish = document.getElementById('wishInput').value || 'Не указано';
-            sendToTelegram('❌ НЕТ', date, wish);
-        });
-
-        // ---- КНОПКА "ДА" ----
-        document.getElementById('yesBtn').addEventListener('click', function() {
-            const date = document.getElementById('dateInput').value;
-            const wish = document.getElementById('wishInput').value || 'Не указано';
-            sendToTelegram('❤️ ДА ❤️', date, wish);
-        });
-
         // ---- ОТПРАВКА В TELEGRAM ----
         const sendBtn = document.getElementById('sendBtn');
         const successMsg = document.getElementById('successMsg');
+        const errorMsg = document.getElementById('errorMsg');
+
+        // ВАШИ ДАННЫЕ ДЛЯ ТЕЛЕГРАМА
+        const BOT_TOKEN = '8738638044:AAEorueYrYHPMIONK4d1uSbUm411j1TtzHs';
+        const CHAT_ID = '2114555897';
 
         async function sendToTelegram(answer, date, wish) {
-    const token = '8738638044:AAEorueYrYHPMIONK4d1uSbUm411j1TtzHs';
-    const chatId = '2114555897';  // сюда вставьте число от @userinfobot
-
             const text = `
         🥰 НОВЫЙ ОТВЕТ НА ПРИГЛАШЕНИЕ!
 
         📌 Ответ: ${answer}
         📅 Дата: ${date || 'Не выбрана'}
-        💬 Пожелание: ${wish}
+        💬 Пожелание: ${wish || 'Не указано'}
 
         🌹 Пусть любовь победит!
             `;
 
-            const url = `https://api.telegram.org/bot${token}/sendMessage`;
+            const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
 
             try {
                 sendBtn.disabled = true;
                 sendBtn.textContent = '⏳ Отправка...';
+                successMsg.classList.remove('show');
+                errorMsg.classList.remove('show');
 
                 const res = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        chat_id: chatId,
+                        chat_id: CHAT_ID,
                         text: text,
                         parse_mode: 'HTML'
                     })
@@ -468,27 +475,39 @@
                     successMsg.textContent = '✅ Отправлено! Она уже знает ❤️';
                     successMsg.classList.add('show');
                     sendBtn.textContent = '💌 Отправлено!';
+                    sendBtn.disabled = false;
                 } else {
-                    successMsg.textContent = '❌ Ошибка отправки. Попробуй ещё раз.';
-                    successMsg.style.color = '#f87171';
-                    successMsg.classList.add('show');
+                    errorMsg.textContent = '❌ Ошибка отправки. Попробуй ещё раз.';
+                    errorMsg.classList.add('show');
                     sendBtn.textContent = '💌 Отправить ответ';
                     sendBtn.disabled = false;
                 }
             } catch (err) {
-                successMsg.textContent = '❌ Ошибка сети. Проверь интернет.';
-                successMsg.style.color = '#f87171';
-                successMsg.classList.add('show');
+                errorMsg.textContent = '❌ Ошибка сети. Проверь интернет.';
+                errorMsg.classList.add('show');
                 sendBtn.textContent = '💌 Отправить ответ';
                 sendBtn.disabled = false;
             }
         }
 
-        // Отправка по кнопке "Отправить ответ"
+        // ---- КНОПКА "ДА" ----
+        document.getElementById('yesBtn').addEventListener('click', function() {
+            const date = document.getElementById('dateInput').value;
+            const wish = document.getElementById('wishInput').value || 'Не указано';
+            sendToTelegram('❤️ ДА ❤️', date, wish);
+        });
+
+        // ---- КНОПКА "НЕТ" ----
+        noBtn.addEventListener('click', function() {
+            const date = document.getElementById('dateInput').value;
+            const wish = document.getElementById('wishInput').value || 'Не указано';
+            sendToTelegram('❌ НЕТ', date, wish);
+        });
+
+        // ---- КНОПКА "ОТПРАВИТЬ ОТВЕТ" ----
         document.getElementById('sendBtn').addEventListener('click', function() {
             const date = document.getElementById('dateInput').value;
             const wish = document.getElementById('wishInput').value || 'Не указано';
-            // Спрашиваем, какой ответ: если ДА или НЕТ не нажимали — шлём "Неизвестно"
             sendToTelegram('🤔 Ответ не выбран (но форма заполнена)', date, wish);
         });
     </script>
