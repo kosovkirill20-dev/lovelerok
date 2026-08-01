@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Приглашение на свидание ❤️</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(145deg, #0b0c2e 0%, #1a1a4e 40%, #2d1b69 100%);
+            overflow: hidden;
+        }
+
+        /* --- Звёздный фон --- */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration) ease-in-out infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.2; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* --- Плавающие сердечки --- */
+        .floating-hearts {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .heart-float {
+            position: absolute;
+            font-size: 28px;
+            animation: floatUp linear infinite;
+            opacity: 0.6;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) rotate(0deg) scale(0.5); opacity: 0.8; }
+            100% { transform: translateY(-10vh) rotate(720deg) scale(1.2); opacity: 0; }
+        }
+
+        /* --- Основная карточка --- */
+        .card {
+            position: relative;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-radius: 40px;
+            padding: 50px 40px 40px;
+            max-width: 520px;
+            width: 92%;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 120px rgba(255, 100, 200, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), 0 0 160px rgba(255, 100, 200, 0.25);
+        }
+
+        .emoji-big {
+            font-size: 64px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        h1 {
+            color: #fff;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: 0.3px;
+            text-shadow: 0 0 30px rgba(255, 100, 200, 0.3);
+        }
+
+        .sub {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 16px;
+            margin-bottom: 28px;
+            letter-spacing: 0.5px;
+        }
+
+        .sub span {
+            color: #ff6b9d;
+            font-weight: 600;
+        }
+
+        /* --- Кнопки --- */
+        .buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        /* Кнопка ДА — с сердечком */
+        .btn-yes {
+            background: linear-gradient(135deg, #ff3b7f, #ff6b9d);
+            border: none;
+            padding: 16px 36px;
+            border-radius: 60px;
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+            cursor: pointer;
+            box-shadow: 0 8px 30px rgba(255, 60, 130, 0.4);
+            transition: 0.25s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: 0.5px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+
+        .btn-yes:hover {
+            transform: scale(1.06);
+            box-shadow: 0 12px 45px rgba(255, 60, 130, 0.6);
+        }
+
+        .btn-yes .heart-icon {
+            font-size: 28px;
+            animation: pulseHeart 1.4s ease-in-out infinite;
+        }
+
+        @keyframes pulseHeart {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.25); }
+        }
+
+        /* Кнопка НЕТ — сбегает */
+        .btn-no {
+            background: rgba(255, 255, 255, 0.07);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            padding: 14px 30px;
+            border-radius: 60px;
+            font-size: 18px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            transition: 0.15s;
+            backdrop-filter: blur(4px);
+            position: relative;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-no:hover {
+            background: rgba(255, 80, 80, 0.15);
+            border-color: #ff6b6b;
+            color: #ff6b6b;
+        }
+
+        .btn-no .run-emoji {
+            display: inline-block;
+            transition: 0.2s;
+        }
+
+        .btn-no:hover .run-emoji {
+            animation: run 0.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes run {
+            0% { transform: translateX(0) rotate(0deg); }
+            100% { transform: translateX(8px) rotate(-10deg); }
+        }
+
+        /* --- Форма --- */
+        .form-group {
+            margin-top: 8px;
+            text-align: left;
+        }
+
+        .form-group label {
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 14px;
+            font-weight: 500;
+            display: block;
+            margin-bottom: 5px;
+            letter-spacing: 0.3px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(6px);
+            color: #fff;
+            font-size: 15px;
+            transition: 0.25s;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: rgba(255, 255, 255, 0.35);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: #ff6b9d;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 25px rgba(255, 60, 130, 0.15);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 14px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            min-width: 140px;
+        }
+
+        /* --- Кнопка отправить --- */
+        .btn-send {
+            width: 100%;
+            margin-top: 20px;
+            padding: 14px;
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            border: none;
+            border-radius: 30px;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 6px 25px rgba(124, 58, 237, 0.35);
+            letter-spacing: 0.5px;
+        }
+
+        .btn-send:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 40px rgba(124, 58, 237, 0.5);
+        }
+
+        .btn-send:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* --- Сообщение об успехе --- */
+        .success-msg {
+            display: none;
+            color: #a7f3d0;
+            background: rgba(16, 185, 129, 0.15);
+            padding: 12px;
+            border-radius: 16px;
+            margin-top: 14px;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        .success-msg.show {
+            display: block;
+        }
+
+        /* --- Адаптив --- */
+        @media (max-width: 480px) {
+            .card { padding: 30px 20px; }
+            h1 { font-size: 22px; }
+            .btn-yes { font-size: 17px; padding: 14px 24px; }
+            .btn-no { font-size: 15px; padding: 12px 20px; }
+            .buttons { gap: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Звёзды -->
+    <div class="stars" id="stars"></div>
+
+    <!-- Плавающие сердечки -->
+    <div class="floating-hearts" id="floatingHearts"></div>
+
+    <!-- Главная карточка -->
+    <div class="card">
+        <span class="emoji-big">🌹</span>
+        <h1>Приглашение на свидание</h1>
+        <p class="sub">
+            <span>❤️</span> Ты — самое красивое, что есть в этом мире <span>❤️</span>
+        </p>
+
+        <div class="buttons">
+            <!-- Кнопка ДА -->
+            <button class="btn-yes" id="yesBtn">
+                <span class="heart-icon">❤️</span> ДА!
+            </button>
+            <!-- Кнопка НЕТ (убегает) -->
+            <button class="btn-no" id="noBtn">
+                <span class="run-emoji">🏃‍♂️</span> Нет
+            </button>
+        </div>
+
+        <!-- Форма -->
+        <div class="form-group">
+            <label>📅 Выбери дату</label>
+            <input type="date" id="dateInput" min="2026-08-02" value="2026-08-14">
+        </div>
+
+        <div class="form-group" style="margin-top:12px;">
+            <label>💬 Твоё пожелание (что хочешь на свидании?)</label>
+            <textarea id="wishInput" placeholder="Например: хочу мороженое и обнимашки 🍦"></textarea>
+        </div>
+
+        <button class="btn-send" id="sendBtn">💌 Отправить ответ</button>
+
+        <div class="success-msg" id="successMsg">
+            ✅ Отправлено! Она уже знает ❤️
+        </div>
+    </div>
+
+    <script>
+        // ---- ЗВЁЗДЫ ----
+        (function createStars() {
+            const container = document.getElementById('stars');
+            for (let i = 0; i < 120; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = Math.random() * 3 + 1;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.setProperty('--duration', (Math.random() * 2 + 1.5) + 's');
+                star.style.animationDelay = Math.random() * 3 + 's';
+                container.appendChild(star);
+            }
+        })();
+
+        // ---- ПЛАВАЮЩИЕ СЕРДЕЧКИ ----
+        (function createHearts() {
+            const container = document.getElementById('floatingHearts');
+            const emojis = ['❤️', '💖', '💗', '✨', '🌸', '💕', '🌺'];
+            for (let i = 0; i < 18; i++) {
+                const el = document.createElement('div');
+                el.className = 'heart-float';
+                el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                el.style.left = Math.random() * 100 + '%';
+                el.style.fontSize = (Math.random() * 22 + 16) + 'px';
+                el.style.animationDuration = (Math.random() * 12 + 10) + 's';
+                el.style.animationDelay = (Math.random() * 14) + 's';
+                container.appendChild(el);
+            }
+        })();
+
+        // ---- УБЕГАЮЩАЯ КНОПКА "НЕТ" ----
+        const noBtn = document.getElementById('noBtn');
+        const card = document.querySelector('.card');
+
+        noBtn.addEventListener('mouseenter', function(e) {
+            const cardRect = card.getBoundingClientRect();
+            const btnRect = this.getBoundingClientRect();
+
+            // Случайное смещение внутри карточки
+            const maxX = cardRect.width - btnRect.width - 10;
+            const maxY = cardRect.height - btnRect.height - 10;
+
+            let newX = Math.random() * maxX;
+            let newY = Math.random() * maxY;
+
+            // Чтобы не выбегал за границы
+            newX = Math.max(0, Math.min(newX, maxX));
+            newY = Math.max(0, Math.min(newY, maxY));
+
+            this.style.position = 'relative';
+            this.style.left = newX + 'px';
+            this.style.top = newY + 'px';
+            this.style.transition = 'left 0.2s ease, top 0.2s ease';
+        });
+
+        // Если нажали на "НЕТ" — всё равно отправляем "НЕТ"
+        noBtn.addEventListener('click', function() {
+            const date = document.getElementById('dateInput').value;
+            const wish = document.getElementById('wishInput').value || 'Не указано';
+            sendToTelegram('❌ НЕТ', date, wish);
+        });
+
+        // ---- КНОПКА "ДА" ----
+        document.getElementById('yesBtn').addEventListener('click', function() {
+            const date = document.getElementById('dateInput').value;
+            const wish = document.getElementById('wishInput').value || 'Не указано';
+            sendToTelegram('❤️ ДА ❤️', date, wish);
+        });
+
+        // ---- ОТПРАВКА В TELEGRAM ----
+        const sendBtn = document.getElementById('sendBtn');
+        const successMsg = document.getElementById('successMsg');
+
+        async function sendToTelegram(answer, date, wish) {
+            const token = '8073455823:AAHc5Ql6kSBWGfB3mTYeQ6W2vOO2-PZWGgY';
+            const chatId = 'zxckiryushka';
+
+            const text = `
+        🥰 НОВЫЙ ОТВЕТ НА ПРИГЛАШЕНИЕ!
+
+        📌 Ответ: ${answer}
+        📅 Дата: ${date || 'Не выбрана'}
+        💬 Пожелание: ${wish}
+
+        🌹 Пусть любовь победит!
+            `;
+
+            const url = `https://api.telegram.org/bot${token}/sendMessage`;
+
+            try {
+                sendBtn.disabled = true;
+                sendBtn.textContent = '⏳ Отправка...';
+
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: text,
+                        parse_mode: 'HTML'
+                    })
+                });
+
+                const data = await res.json();
+
+                if (data.ok) {
+                    successMsg.textContent = '✅ Отправлено! Она уже знает ❤️';
+                    successMsg.classList.add('show');
+                    sendBtn.textContent = '💌 Отправлено!';
+                } else {
+                    successMsg.textContent = '❌ Ошибка отправки. Попробуй ещё раз.';
+                    successMsg.style.color = '#f87171';
+                    successMsg.classList.add('show');
+                    sendBtn.textContent = '💌 Отправить ответ';
+                    sendBtn.disabled = false;
+                }
+            } catch (err) {
+                successMsg.textContent = '❌ Ошибка сети. Проверь интернет.';
+                successMsg.style.color = '#f87171';
+                successMsg.classList.add('show');
+                sendBtn.textContent = '💌 Отправить ответ';
+                sendBtn.disabled = false;
+            }
+        }
+
+        // Отправка по кнопке "Отправить ответ"
+        document.getElementById('sendBtn').addEventListener('click', function() {
+            const date = document.getElementById('dateInput').value;
+            const wish = document.getElementById('wishInput').value || 'Не указано';
+            // Спрашиваем, какой ответ: если ДА или НЕТ не нажимали — шлём "Неизвестно"
+            sendToTelegram('🤔 Ответ не выбран (но форма заполнена)', date, wish);
+        });
+    </script>
+
+</body>
+</html>
