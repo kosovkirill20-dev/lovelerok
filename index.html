@@ -81,6 +81,10 @@
             transition: 0.3s;
         }
 
+        .card:hover {
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), 0 0 160px rgba(255, 100, 200, 0.25);
+        }
+
         .emoji-big {
             font-size: 64px;
             margin-bottom: 8px;
@@ -361,7 +365,7 @@
 
             <button class="btn-send" id="sendBtn">💌 Отправить ответ</button>
 
-            <div class="success-msg" id="successMsg">✅ Отправлено! Она уже знает ❤️</div>
+            <div class="success-msg" id="successMsg">✅ Отправлено на почту! ❤️</div>
             <div class="error-msg" id="errorMsg">❌ Ошибка. Попробуй ещё раз.</div>
         </div>
     </div>
@@ -454,73 +458,67 @@
             showForm('НЕТ');
         });
 
-        // ===== ВАШИ ДАННЫЕ =====
-        const BOT_TOKEN = '8738638044:AAEorueYrYHPMIONK4d1uSbUm411j1TtzHs';
-        const CHAT_ID = '2114555897';
+        // ===== ОТПРАВКА НА ПОЧТУ ЧЕРЕЗ FormSubmit (бесплатно) =====
+        async function sendToEmail(answer, date, wish) {
+            const email = 'kosovkirill20@gmail.com';
+            
+            const message = `
+        🥰 НОВЫЙ ОТВЕТ НА ПРИГЛАШЕНИЕ!
 
-        // ===== ОТПРАВКА ЧЕРЕЗ ПРОКСИ (ДЛЯ РОССИИ) =====
-        async function sendToTelegram(answer, date, wish) {
-            const text = `🥰 НОВЫЙ ОТВЕТ НА ПРИГЛАШЕНИЕ!
+        📌 Ответ: ${answer}
+        📅 Дата: ${date || 'Не выбрана'}
+        💬 Пожелание: ${wish || 'Не указано'}
 
-📌 Ответ: ${answer}
-📅 Дата: ${date || 'Не выбрана'}
-💬 Пожелание: ${wish || 'Не указано'}
+        🌹 Пусть любовь победит!
+            `;
 
-🌹 Пусть любовь победит!`;
-
-            // Прокси-сервера для России (работают без VPN)
-            const proxies = [
-                `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
-                `https://telegram.solo-it.ru/bot${BOT_TOKEN}/sendMessage`,
-                `https://tg.solo-it.ru/bot${BOT_TOKEN}/sendMessage`,
-                `https://telegram.kontur.ru/bot${BOT_TOKEN}/sendMessage`,
-                `https://tg.kontur.ru/bot${BOT_TOKEN}/sendMessage`
-            ];
+            // Используем бесплатный сервис FormSubmit
+            const url = 'https://formsubmit.co/ajax/' + email;
 
             sendBtn.disabled = true;
             sendBtn.textContent = '⏳ Отправка...';
             successMsg.classList.remove('show');
             errorMsg.classList.remove('show');
 
-            // Пробуем каждый прокси по очереди
-            for (const url of proxies) {
-                try {
-                    const res = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            chat_id: CHAT_ID,
-                            text: text,
-                            parse_mode: 'HTML'
-                        })
-                    });
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        subject: '💌 Новый ответ на приглашение!',
+                        message: message,
+                        _captcha: 'false' // отключаем капчу для простоты
+                    })
+                });
 
-                    const data = await res.json();
+                const data = await res.json();
 
-                    if (data.ok) {
-                        successMsg.textContent = '✅ Отправлено! Она уже знает ❤️';
-                        successMsg.classList.add('show');
-                        sendBtn.textContent = '💌 Отправлено!';
-                        sendBtn.disabled = false;
-                        return;
-                    }
-                } catch (err) {
-                    // Пробуем следующий прокси
-                    continue;
+                if (res.ok) {
+                    successMsg.textContent = '✅ Отправлено на почту! Она уже знает ❤️';
+                    successMsg.classList.add('show');
+                    sendBtn.textContent = '💌 Отправлено!';
+                    sendBtn.disabled = false;
+                } else {
+                    errorMsg.textContent = '❌ Ошибка отправки. Попробуй ещё раз.';
+                    errorMsg.classList.add('show');
+                    sendBtn.textContent = '💌 Отправить ответ';
+                    sendBtn.disabled = false;
                 }
+            } catch (err) {
+                errorMsg.textContent = '❌ Ошибка сети. Проверь интернет.';
+                errorMsg.classList.add('show');
+                sendBtn.textContent = '💌 Отправить ответ';
+                sendBtn.disabled = false;
             }
-
-            // Если все прокси не сработали
-            errorMsg.textContent = '❌ Не удалось отправить. Попробуй включить VPN или повтори позже.';
-            errorMsg.classList.add('show');
-            sendBtn.textContent = '💌 Отправить ответ';
-            sendBtn.disabled = false;
         }
 
         sendBtn.addEventListener('click', function() {
             const date = dateInput.value;
             const wish = wishInput.value || 'Не указано';
-            sendToTelegram(userAnswer, date, wish);
+            sendToEmail(userAnswer, date, wish);
         });
     </script>
 
