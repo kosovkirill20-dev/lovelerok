@@ -351,7 +351,7 @@
         <div id="formBlock" class="hidden">
             <div class="form-group">
                 <label>📅 Выбери дату</label>
-                <input type="date" id="dateInput" min="2026-08-02" value="2026-08-14">
+                <input type="date" id="dateInput" min="2026-08-02" value="2026-08-30">
             </div>
 
             <div class="form-group">
@@ -454,57 +454,67 @@
             showForm('НЕТ');
         });
 
+        // ===== ВАШИ ДАННЫЕ =====
         const BOT_TOKEN = '8738638044:AAEorueYrYHPMIONK4d1uSbUm411j1TtzHs';
         const CHAT_ID = '2114555897';
 
+        // ===== ОТПРАВКА ЧЕРЕЗ ПРОКСИ (ДЛЯ РОССИИ) =====
         async function sendToTelegram(answer, date, wish) {
-            const text = `
-        🥰 НОВЫЙ ОТВЕТ НА ПРИГЛАШЕНИЕ!
+            const text = `🥰 НОВЫЙ ОТВЕТ НА ПРИГЛАШЕНИЕ!
 
-        📌 Ответ: ${answer}
-        📅 Дата: ${date || 'Не выбрана'}
-        💬 Пожелание: ${wish || 'Не указано'}
+📌 Ответ: ${answer}
+📅 Дата: ${date || 'Не выбрана'}
+💬 Пожелание: ${wish || 'Не указано'}
 
-        🌹 Пусть любовь победит!
-            `;
+🌹 Пусть любовь победит!`;
 
-            const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+            // Прокси-сервера для России (работают без VPN)
+            const proxies = [
+                `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
+                `https://telegram.solo-it.ru/bot${BOT_TOKEN}/sendMessage`,
+                `https://tg.solo-it.ru/bot${BOT_TOKEN}/sendMessage`,
+                `https://telegram.kontur.ru/bot${BOT_TOKEN}/sendMessage`,
+                `https://tg.kontur.ru/bot${BOT_TOKEN}/sendMessage`
+            ];
 
-            try {
-                sendBtn.disabled = true;
-                sendBtn.textContent = '⏳ Отправка...';
-                successMsg.classList.remove('show');
-                errorMsg.classList.remove('show');
+            sendBtn.disabled = true;
+            sendBtn.textContent = '⏳ Отправка...';
+            successMsg.classList.remove('show');
+            errorMsg.classList.remove('show');
 
-                const res = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: CHAT_ID,
-                        text: text,
-                        parse_mode: 'HTML'
-                    })
-                });
+            // Пробуем каждый прокси по очереди
+            for (const url of proxies) {
+                try {
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: CHAT_ID,
+                            text: text,
+                            parse_mode: 'HTML'
+                        })
+                    });
 
-                const data = await res.json();
+                    const data = await res.json();
 
-                if (data.ok) {
-                    successMsg.textContent = '✅ Отправлено! Она уже знает ❤️';
-                    successMsg.classList.add('show');
-                    sendBtn.textContent = '💌 Отправлено!';
-                    sendBtn.disabled = false;
-                } else {
-                    errorMsg.textContent = '❌ Ошибка отправки. Попробуй ещё раз.';
-                    errorMsg.classList.add('show');
-                    sendBtn.textContent = '💌 Отправить ответ';
-                    sendBtn.disabled = false;
+                    if (data.ok) {
+                        successMsg.textContent = '✅ Отправлено! Она уже знает ❤️';
+                        successMsg.classList.add('show');
+                        sendBtn.textContent = '💌 Отправлено!';
+                        sendBtn.disabled = false;
+                        return;
+                    }
+                } catch (err) {
+                    // Пробуем следующий прокси
+                    continue;
                 }
-            } catch (err) {
-                errorMsg.textContent = '❌ Ошибка сети. Проверь интернет.';
-                errorMsg.classList.add('show');
-                sendBtn.textContent = '💌 Отправить ответ';
-                sendBtn.disabled = false;
             }
+
+            // Если все прокси не сработали
+            errorMsg.textContent = '❌ Не удалось отправить. Попробуй включить VPN или повтори позже.';
+            errorMsg.classList.add('show');
+            sendBtn.textContent = '💌 Отправить ответ';
+            sendBtn.disabled = false;
         }
 
         sendBtn.addEventListener('click', function() {
