@@ -332,10 +332,9 @@
         <span class="emoji-big">🌹</span>
         <h1>Приглашение на свидание</h1>
         <p class="sub">
-            <span>❤️</span> Ты — самое красивое, что есть в этом мире <span>❤️</span>
+            <span>❤️</span> Ты - самое красивое, что есть в этом мире <span>❤️</span>
         </p>
 
-        <!-- Кнопки ДА / НЕТ -->
         <div class="buttons">
             <button class="btn-yes" id="yesBtn">
                 <span class="heart-icon">❤️</span> ДА!
@@ -345,12 +344,10 @@
             </button>
         </div>
 
-        <!-- Блок с ответом -->
         <div id="answerBlock" class="hidden">
             <div class="answer-text" id="answerText"></div>
         </div>
 
-        <!-- Форма (появляется после выбора) -->
         <div id="formBlock" class="hidden">
             <div class="form-group">
                 <label>📅 Выбери дату</label>
@@ -370,7 +367,6 @@
     </div>
 
     <script>
-        // ---- ЗВЁЗДЫ ----
         (function createStars() {
             const container = document.getElementById('stars');
             for (let i = 0; i < 120; i++) {
@@ -387,7 +383,6 @@
             }
         })();
 
-        // ---- ПЛАВАЮЩИЕ СЕРДЕЧКИ ----
         (function createHearts() {
             const container = document.getElementById('floatingHearts');
             const emojis = ['❤️', '💖', '💗', '✨', '🌸', '💕', '🌺'];
@@ -403,7 +398,6 @@
             }
         })();
 
-        // ---- ПЕРЕМЕННЫЕ ----
         const yesBtn = document.getElementById('yesBtn');
         const noBtn = document.getElementById('noBtn');
         const answerBlock = document.getElementById('answerBlock');
@@ -418,7 +412,6 @@
 
         let userAnswer = '';
 
-        // ---- УБЕГАЮЩАЯ КНОПКА "НЕТ" ----
         noBtn.addEventListener('mouseenter', function(e) {
             const cardRect = card.getBoundingClientRect();
             const btnRect = this.getBoundingClientRect();
@@ -438,7 +431,6 @@
             this.style.transition = 'left 0.2s ease, top 0.2s ease';
         });
 
-        // ---- ФУНКЦИЯ ПОКАЗА ФОРМЫ ----
         function showForm(answer) {
             userAnswer = answer;
             answerBlock.classList.remove('hidden');
@@ -450,22 +442,18 @@
                 answerText.innerHTML = '😢 Ты сказала <span class="no-color">НЕТ...</span> 😢';
             }
 
-            // Скрываем кнопки ДА/НЕТ
             yesBtn.style.display = 'none';
             noBtn.style.display = 'none';
         }
 
-        // ---- КНОПКА "ДА" ----
         yesBtn.addEventListener('click', function() {
             showForm('ДА');
         });
 
-        // ---- КНОПКА "НЕТ" ----
         noBtn.addEventListener('click', function() {
             showForm('НЕТ');
         });
 
-        // ---- ОТПРАВКА В TELEGRAM ----
         const BOT_TOKEN = '8738638044:AAEorueYrYHPMIONK4d1uSbUm411j1TtzHs';
         const CHAT_ID = '2114555897';
 
@@ -519,7 +507,6 @@
             }
         }
 
-        // ---- КНОПКА "ОТПРАВИТЬ ОТВЕТ" ----
         sendBtn.addEventListener('click', function() {
             const date = dateInput.value;
             const wish = wishInput.value || 'Не указано';
